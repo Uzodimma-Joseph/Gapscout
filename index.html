@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GapScout</title>
+<style>
+:root{--bg:#f6f7f9;--cd:#fff;--tx:#14181f;--mu:#667085;--bd:#e3e6eb;--ac:#1f6feb;--ok:#1a7f4b;--wn:#b35c00;--bad:#c62828;--gap:#7a3df0}
+@media(prefers-color-scheme:dark){:root{--bg:#0f1218;--cd:#181c24;--tx:#e8eaee;--mu:#9aa3b2;--bd:#2a303b;--ac:#58a6ff;--ok:#3fb97a;--wn:#e0a040;--bad:#ff7b72;--gap:#b392ff}}
+*{box-sizing:border-box}body{margin:0;font:15px/1.4 system-ui,sans-serif;background:var(--bg);color:var(--tx)}
+header{padding:12px 16px;font-weight:700;border-bottom:1px solid var(--bd);background:var(--cd)}
+main{max-width:1100px;margin:0 auto;padding:12px}
+section,.card{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:12px;margin-bottom:12px}
+input,select,button,textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:8px}
+button{cursor:pointer}button.p{background:var(--ac);color:#fff;border-color:var(--ac)}
+.g{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}.r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.mu{color:var(--mu);font-size:13px}.pill{border-radius:99px;padding:2px 10px;font-size:12px;border:1px solid currentColor;white-space:nowrap}
+.ok{color:var(--ok)}.wn{color:var(--wn)}.bad{color:var(--bad)}.gap{color:var(--gap)}
+.cards{display:grid;gap:12px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.card{margin:0;display:flex;flex-direction:column;gap:6px;overflow:hidden}.card.gapc{border:2px solid var(--gap)}
+.ph{height:120px;border-radius:8px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:34px;color:var(--mu);overflow:hidden}
+.ph img{width:100%;height:100%;object-fit:cover}
+a{color:var(--ac)}dialog{max-width:640px;width:calc(100% - 24px);background:var(--cd);color:var(--tx);border:1px solid var(--bd);border-radius:12px;max-height:88vh}
+dt{color:var(--mu);font-size:12px;margin-top:8px}dd{margin:0;word-break:break-word}
+</style></head><body>
+<header>GapScout <span class="mu">business website gap finder</span></header>
+<main>
+<section><form id="f" class="g">
+<input id="q" placeholder="e.g. real estate agencies in Owerri, Imo State" style="grid-column:1/-1">
+<input id="cat" placeholder="Category"><input id="city" placeholder="City / LGA"><input id="reg" placeholder="State / region"><input id="cty" placeholder="Country" value="Nigeria">
+<input id="area" placeholder="Neighborhood (optional)"><input id="lim" type="number" min="1" max="100" value="20" title="Max results">
+<button class="p" id="go">Search</button></form><div id="msg" class="mu"></div></section>
+<section><b>Previous searches</b><div id="hist" class="r" style="margin-top:6px"></div></section>
+<section id="job" hidden><div class="r"><b id="jt"></b><span id="js" class="pill"></span><button id="retry" hidden>Retry</button></div>
+<div id="jp" class="mu"></div><div id="je" class="bad mu"></div></section>
+<section id="res" hidden>
+<div class="r" id="chips"></div>
+<div class="r" style="margin-top:8px"><label><input type="checkbox" data-f="hasPhone"> Phone</label><label><input type="checkbox" data-f="hasEmail"> Email</label>
+<label><input type="checkbox" data-f="hasAddress"> Address</label><label><input type="checkbox" data-f="hasSocial"> Social</label>
+<input id="sq" placeholder="Search in results"><select id="sort"><option value="name">Name</option><option value="location">Location</option><option value="completeness">Completeness</option><option value="confidence">Confidence</option></select></div>
+<div class="r" style="margin-top:8px"><b id="cnt"></b><span class="mu" id="sel"></span><button id="all">Select page</button><button id="exs">Export selected</button><button id="exa">Export all</button></div></section>
+<div id="cards" class="cards"></div>
+<div class="r" id="pg" style="justify-content:center;margin:12px"></div>
+</main>
+<dialog id="dlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const h=(t,a={},...c)=>{const e=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v!=null&&v!==false)e.setAttribute(k,v===true?'':v)}c.flat().forEach(x=>e.append(x??''));return e};
+const safe=u=>{try{const x=new URL(u);return/^https?:$/.test(x.protocol)?x.href:null}catch{return null}};
+const ST={website_found:['Website found','ok'],no_website_found:['No website found','gap'],uncertain:['Uncertain','wn'],verification_failed:['Verification failed','bad'],unverified:['Not yet verified','mu']};
+const ACTIVE=['queued','discovering','enriching','verifying'];
+let KEY=localStorage.getItem('gs_key')||'',sid=null,page=1,show=new Set(Object.keys(ST)),sel=new Set(),timer=null,rows=[];
+async function api(p,o={}){const r=await fetch('/api'+p,{...o,headers:{'content-type':'application/json','x-access-key':KEY,...(o.headers||{})}});
+ if(r.status===401){const k=prompt('Access key');if(k){KEY=k;localStorage.setItem('gs_key',k);return api(p,o)}throw new Error('Access key required')}return r}
+const say=(t,bad)=>{$('#msg').textContent=t||'';$('#msg').className='mu'+(bad?' bad':'')};
+function params(extra={}){const p=new URLSearchParams({sort:$('#sort').value,...extra});
+ if(show.size<5)p.set('status',[...show].join(','));if($('#sq').value)p.set('q',$('#sq').value);
+ document.querySelectorAll('[data-f]:checked').forEach(c=>p.set(c.dataset.f,'1'));return p}
+$('#f').onsubmit=async e=>{e.preventDefault();say('Starting…');$('#go').disabled=true;
+ try{const r=await api('/searches',{method:'POST',body:JSON.stringify({query:$('#q').value,category:$('#cat').value,city:$('#city').value,region:$('#reg').value,country:$('#cty').value,area:$('#area').value,limit:$('#lim').value})});
+ const j=await r.json();if(!r.ok)return say(j.error,1);say('');open(j.id)}catch(x){say(x.message,1)}finally{$('#go').disabled=false}};
+async function hist(){try{const j=await(await api('/searches')).json();$('#hist').replaceChildren(...j.items.map(s=>h('button',{onclick:()=>open(s.id)},`${s.category} · ${s.city} · ${s.discovered}`)));if(!j.items.length)$('#hist').textContent='None yet'}catch{}}
+function open(id){sid=id;page=1;sel.clear();clearInterval(timer);poll();timer=setInterval(poll,4000)}
+async function poll(){const s=await(await api('/searches/'+sid)).json();$('#job').hidden=false;$('#jt').textContent=`${s.category} in ${s.city}`;
+ const[l,c]={queued:['Queued','mu'],discovering:['Discovering businesses','wn'],enriching:['Enriching records','wn'],verifying:['Verifying websites','wn'],completed:['Completed','ok'],partial:['Partially completed','wn'],failed:['Failed','bad']}[s.status];
+ $('#js').textContent=l;$('#js').className='pill '+c;$('#jp').textContent=`${s.discovered} discovered · ${s.verified} verified`+(s.resolved_location?` · ${s.resolved_location}`:'');
+ $('#je').textContent=s.errors.slice(-3).map(e=>`${e.step}/${e.source}: ${e.message}`).join(' | ');$('#retry').hidden=!['failed','partial'].includes(s.status);
+ $('#retry').onclick=async()=>{await api(`/searches/${sid}/retry`,{method:'POST'});poll()};
+ if(!ACTIVE.includes(s.status))clearInterval(timer);load();hist()}
+async function load(){const j=await(await api(`/searches/${sid}/businesses?`+params({page}))).json();rows=j.items;$('#res').hidden=false;
+ $('#cnt').textContent=`${j.total} result${j.total==1?'':'s'}`;$('#sel').textContent=sel.size?`${sel.size} selected`:'';
+ $('#chips').replaceChildren(...Object.entries(ST).map(([k,[l,c]])=>h('button',{class:show.has(k)?'p':'',onclick:()=>{show.has(k)?show.delete(k):show.add(k);page=1;load()}},l)));
+ $('#cards').replaceChildren(...j.items.map(card));if(!j.items.length)$('#cards').textContent='No businesses match.';
+ const n=Math.ceil(j.total/j.pageSize);$('#pg').replaceChildren(...(n>1?[h('button',{disabled:page<=1,onclick:()=>{page--;load()}},'Prev'),`Page ${page} / ${n}`,h('button',{disabled:page>=n,onclick:()=>{page++;load()}},'Next')]:[]))}
+const loc=b=>[b.address,b.city,b.region].filter(Boolean).join(', ');
+function badge(b){const[l,c]=ST[b.website_status]||ST.unverified;return h('span',{class:'pill '+c},l+(b.website_confidence&&b.website_status!=='unverified'?` · ${b.website_confidence} confidence`:''))}
+function card(b){const im=safe(b.image_url);const ph=h('div',{class:'ph'},'🏢');if(im){const i=h('img',{src:im,alt:'',loading:'lazy',referrerpolicy:'no-referrer'});i.onerror=()=>i.remove();ph.replaceChildren(i)}
+ const links=[['Facebook',b.facebook_url],['Instagram',b.instagram_url],['LinkedIn',b.linkedin_url],['Source listing',b.listing_url]].map(([l,u])=>safe(u)&&h('a',{href:safe(u),target:'_blank',rel:'noopener noreferrer'},l)).filter(Boolean);
+ const tel=b.phone&&/^\+?\d{7,}$/.test(b.phone);const wa=b.whatsapp&&b.whatsapp.replace(/\D/g,'');
+ return h('div',{class:'card'+(b.website_status==='no_website_found'?' gapc':'')},ph,
+  h('div',{class:'r'},h('input',{type:'checkbox',checked:sel.has(b.id),onchange:e=>{e.target.checked?sel.add(b.id):sel.delete(b.id);$('#sel').textContent=sel.size?`${sel.size} selected`:''}}),h('b',{},b.name)),
+  h('div',{},badge(b)),h('div',{class:'mu'},[b.category,loc(b)].filter(Boolean).join(' · ')),
+  b.description&&h('div',{},b.description),
+  h('div',{class:'mu'},[b.phone,b.email].filter(Boolean).join(' · ')||'No public contact details'),
+  b.official_url&&safe(b.official_url)&&h('a',{href:safe(b.official_url),target:'_blank',rel:'noopener noreferrer'},'Official website'),
+  h('div',{class:'r'},links),
+  h('div',{class:'r'},h('button',{onclick:()=>detail(b.id)},'Details'),tel&&h('a',{href:'tel:'+b.phone},'Call'),wa&&h('a',{href:'https://wa.me/'+wa,target:'_blank',rel:'noopener noreferrer'},'WhatsApp'),
+   h('button',{onclick:()=>navigator.clipboard.writeText([b.name,loc(b),b.phone,b.email,b.official_url].filter(Boolean).join('\n'))},'Copy')))}
+async function detail(id){const b=await(await api('/businesses/'+id)).json();const v=b.verifications[0],ev=v&&v.evidence,d=h('dl');
+ const add=(k,x)=>x&&d.append(h('dt',{},k),h('dd',{},x));
+ add('Website status',ST[b.website_status][0]+(b.website_confidence?` (${b.website_confidence} confidence)`:''));
+ if(ev){add('Why',ev.reasons.join('; '));add('Checks run',ev.checksRun.map(c=>`${c.type}: ${c.ok?'ok':'FAILED '+(c.error||'')}`).join('\n'));add('Social links found',ev.socialLinks.join('\n'));add('Directory links found',ev.directoryLinks.join('\n'));add('Unconfirmed candidate',ev.candidateUrl);add('Last verified',v.verified_at)}
+ else add('Verification','Not verified yet');
+ ['phone','email','address','city','region','country','listing_website','image_source'].forEach(k=>add(k.replace('_',' '),b[k]));
+ add('Sources',b.sources.map(s=>`${s.source} (${s.fetched_at.slice(0,10)})`).join('\n'));
+ const miss=['phone','email','address','description','image_url','facebook_url','instagram_url','linkedin_url'].filter(k=>!b[k]);add('Missing',miss.join(', '));
+ add('Note','Website status is inferred from search evidence, not proof. The listing website field is only a hint.');
+ const dlg=$('#dlg');dlg.replaceChildren(h('b',{},b.name),d,h('div',{class:'r',style:'margin-top:12px'},
+  h('button',{onclick:async e=>{if(!confirm('Re-verify uses SerpApi credits. Continue?'))return;e.target.disabled=true;await api(`/businesses/${id}/reverify`,{method:'POST'});dlg.close();load()}},'Re-verify'),h('button',{onclick:()=>dlg.close()},'Close')));dlg.showModal()}
+async function exp(ids){const p=params();p.delete('page');if(ids)p.set('ids',[...ids].join(','));
+ const r=await api(`/searches/${sid}/export.csv?`+p);const u=URL.createObjectURL(await r.blob());h('a',{href:u,download:'gapscout.csv'}).click();setTimeout(()=>URL.revokeObjectURL(u),1e4)}
+$('#exa').onclick=()=>exp();$('#exs').onclick=()=>sel.size?exp(sel):say('Select businesses first');
+$('#all').onclick=()=>{rows.forEach(b=>sel.add(b.id));load()};
+$('#sort').onchange=()=>{page=1;load()};let dt;$('#sq').oninput=()=>{clearTimeout(dt);dt=setTimeout(()=>{page=1;load()},300)};
+document.querySelectorAll('[data-f]').forEach(c=>c.onchange=()=>{page=1;load()});
+hist();
+</script></body></html>

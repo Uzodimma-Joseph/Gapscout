@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: gapscout
+    runtime: docker
+    plan: starter            # persistent disks need a paid instance; free tier loses the database on every deploy
+    healthCheckPath: /api/health
+    disk: { name: gapscout-data, mountPath: /data, sizeGB: 1 }
+    envVars:
+      - { key: DB_FILE, value: /data/gapscout.db }
+      - { key: DASHBOARD_KEY, generateValue: true }   # the access key you type into the dashboard
+      - { key: AP_SHARED_SECRET, generateValue: true }
+      - { key: SERPAPI_KEY, sync: false }
+      - { key: AP_WEBHOOK_URL, sync: false }
+      - { key: NOMINATIM_UA, sync: false }

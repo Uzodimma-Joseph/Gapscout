@@ -1,0 +1,2 @@
+{ "name": "gapscout", "version": "0.1.0", "private": true, "engines": { "node": ">=22" },
+  "scripts": { "start": "node --no-warnings app.js", "test": "node test.js && node --no-warnings phase2.test.js && node --no-warnings phase3.test.js && node --no-warnings phase4.test.js" } }
