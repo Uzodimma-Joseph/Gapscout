@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: gapscout
+    runtime: docker
+    plan: free               # free = no payment, but the database is wiped on restart/redeploy and the service sleeps after ~15 min idle
+    healthCheckPath: /api/health
+    envVars:
+      - { key: DB_FILE, value: /data/gapscout.db }
+      - { key: DASHBOARD_KEY, generateValue: true }
+      - { key: AP_SHARED_SECRET, generateValue: true }
+      - { key: SERPAPI_KEY, sync: false }
+      - { key: AP_WEBHOOK_URL, sync: false }
+      - { key: NOMINATIM_UA, sync: false }
