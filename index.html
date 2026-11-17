@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GapScout</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Sora:wght@600;700&display=swap" rel="stylesheet">
+<style>:root{--ink:#0d1b2e;--paper:#eef1f6;--cd:#fff;--tx:#14213a;--mu:#5d6b82;--bd:#dde3ee;--ac:#3a56f5;--acs:#e8ecff;--gap:#b7791f;--gaps:#fff3d9;--ok:#157a55;--oks:#e0f4eb;--wn:#a15c00;--wns:#fff0d2;--bad:#c2312d;--bads:#fdeaea;--mt:#5d6b82;--mts:#eef1f6;--sh:0 1px 2px rgba(13,27,46,.06),0 10px 28px -14px rgba(13,27,46,.22)}
+@media(prefers-color-scheme:dark){:root{--paper:#0a1322;--cd:#111f36;--tx:#e7ecf6;--mu:#93a1ba;--bd:#223350;--ac:#8196ff;--acs:#1b2955;--gap:#f2b84b;--gaps:#2c2410;--ok:#4cc995;--oks:#12302a;--wn:#e0a040;--wns:#2e2310;--bad:#ff8a84;--bads:#35181a;--mt:#93a1ba;--mts:#16253f;--sh:0 1px 2px rgba(0,0,0,.3),0 12px 30px -14px rgba(0,0,0,.6)}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 "DM Sans",system-ui,sans-serif;background:var(--paper);color:var(--tx);-webkit-font-smoothing:antialiased}
+h1,h2,h3,.brand,.nm,.big,.mono{font-family:Sora,"DM Sans",system-ui,sans-serif;letter-spacing:-.01em}
+h3{margin:0 0 8px;font-size:17px}a{color:var(--ac)}
+.top{background:var(--ink) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='260' viewBox='0 0 600 260' fill='none' stroke='%23ffffff' stroke-opacity='.08'%3E%3Cpath d='M-20 230C70 150 150 270 275 200S465 90 640 160'/%3E%3Cpath d='M-20 200C80 120 160 240 280 170S470 60 640 130'/%3E%3Cpath d='M-20 170C90 90 170 210 285 140S475 30 640 100'/%3E%3Cpath d='M-20 140C100 60 180 180 290 110S480 0 640 70'/%3E%3Cpath d='M-20 110C110 30 190 150 295 80S485 -30 640 40'/%3E%3C/svg%3E") center/cover;color:#fff;padding:16px 16px 92px}
+.top .in{max-width:1000px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;gap:10px;align-items:center;font-weight:700;font-size:20px}.top nav{display:flex;gap:4px}
+.top nav a{color:#c3cfec;text-decoration:none;font-size:14px;padding:7px 14px;border-radius:99px}.top nav a.on{background:rgba(255,255,255,.13);color:#fff}
+.tag{max-width:1000px;margin:22px auto 0;font:600 clamp(22px,5vw,32px)/1.2 Sora,system-ui,sans-serif;letter-spacing:-.02em}.tag span{display:block;font:400 15px/1.5 "DM Sans",sans-serif;color:#b4c1e0;margin-top:6px}
+main{max-width:1000px;margin:-68px auto 48px;padding:0 12px;position:relative}
+section,.sheet{background:var(--cd);border:1px solid var(--bd);border-radius:22px;padding:16px;margin-bottom:14px;box-shadow:var(--sh)}
+input,select,textarea{font:inherit;color:inherit;background:var(--paper);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;max-width:100%}
+textarea{width:100%;min-height:76px}
+button{font:inherit;font-weight:500;color:inherit;background:transparent;border:1px solid var(--bd);border-radius:12px;padding:9px 14px;cursor:pointer}
+button.p{background:var(--ac);border-color:var(--ac);color:#fff}button:disabled{opacity:.5;cursor:default}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+.r{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.mu{color:var(--mu);font-size:13px}.bad{color:var(--bad)}
+.composer{display:flex;gap:8px}.composer input{flex:1;min-width:0;font-size:17px;padding:15px 16px;border-radius:16px}.composer button{padding:0 22px;border-radius:16px}
+details{margin-top:10px}summary{cursor:pointer;color:var(--mu);font-size:14px;padding:4px 0}
+.g{display:grid;gap:8px;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));margin-top:8px}
+.jt{display:flex;align-items:baseline;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.stp{display:flex;gap:6px;margin:12px 0 6px}.st{flex:1;font-size:12.5px;color:var(--mu);padding-top:8px;border-top:3px solid var(--bd);border-radius:2px}
+.st.done{border-color:var(--ac);color:var(--tx)}.st.warn{border-color:var(--wn)}.st.fail{border-color:var(--bad);color:var(--bad)}
+.st.now{color:var(--tx);border-top-color:transparent;background:linear-gradient(90deg,var(--ac),var(--acs),var(--ac)) top/200% 3px no-repeat;animation:sl 1.6s linear infinite}
+@keyframes sl{to{background-position:200% 0}}@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+.chip{border-radius:99px;padding:6px 14px;font-size:13.5px}.chip.on{background:var(--acs);border-color:var(--ac);color:var(--ac)}
+.big{font-size:24px;font-weight:700}
+.cards{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.card{position:relative;background:var(--cd);border:1px solid var(--bd);border-radius:20px;padding:14px 14px 12px 20px;box-shadow:var(--sh);display:flex;flex-direction:column;gap:8px;overflow:hidden}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:6px;background:var(--c,var(--bd))}
+.s-gap{--c:var(--gap);--cs:var(--gaps);background:linear-gradient(var(--gaps),var(--cd) 60%)}.s-ok{--c:var(--ok);--cs:var(--oks)}.s-wn{--c:var(--wn);--cs:var(--wns)}.s-bad{--c:var(--bad);--cs:var(--bads)}.s-mu{--c:var(--mt);--cs:var(--mts)}
+.head{display:flex;gap:12px;align-items:center}.head label{display:flex;align-items:center}
+.mono{width:46px;height:46px;border-radius:14px;display:grid;place-items:center;font-weight:700;color:#fff;flex:none;overflow:hidden}.mono img{width:100%;height:100%;object-fit:cover}
+.nm{font-weight:600;font-size:16px;line-height:1.25}
+.cs{display:inline-flex;gap:8px;align-items:center;border-radius:99px;padding:3px 11px;font-size:12.5px;font-weight:500;background:var(--cs);color:var(--c);align-self:flex-start}
+.dots{display:inline-flex;gap:3px}.dots i{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.25}.dots i.f{opacity:1}
+.meta{display:flex;flex-direction:column;gap:2px;font-size:14px}.meta .mu{font-size:13.5px}
+.ct{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:14px}.lk{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13.5px}
+.act{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:10px;border-top:1px solid var(--bd)}
+.act button,.act a.b{font-size:13px;padding:6px 12px;border-radius:10px;border:1px solid var(--bd);text-decoration:none;color:var(--tx);background:transparent;cursor:pointer}
+.empty{text-align:center;color:var(--mu);padding:30px 10px}
+dialog{border:1px solid var(--bd);border-radius:24px;padding:18px;background:var(--cd);color:var(--tx);max-width:620px;width:calc(100% - 20px);max-height:88vh;box-shadow:0 30px 80px -20px rgba(0,0,0,.5)}
+dialog::backdrop{background:rgba(8,16,30,.55);backdrop-filter:blur(3px)}
+dt{color:var(--mu);font-size:12.5px;margin-top:10px}dd{margin:2px 0 0;word-break:break-word;white-space:pre-wrap}
+.it{border:1px solid var(--bd);border-radius:16px;padding:12px;margin-top:10px;background:var(--paper)}
+.steps{counter-reset:s}.steps section>h3{display:flex;align-items:center;gap:10px}
+.steps section>h3::before{counter-increment:s;content:counter(s);display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--acs);color:var(--ac);font-size:13px;font-weight:700}
+</style></head><body>
+<div class="top"><div class="in">
+<div class="brand"><svg width="28" height="28" viewBox="0 0 26 26" aria-hidden="true"><circle cx="13" cy="13" r="10" fill="none" stroke="#8196ff" stroke-width="2.6" stroke-dasharray="48 15" stroke-linecap="round"/><circle cx="13" cy="13" r="3.6" fill="#f2b84b"/></svg>GapScout</div>
+<nav><a class="on" href="/">Find businesses</a><a href="/outreach">Outreach</a></nav></div>
+<div class="tag">Find local businesses that have no website.<span>Search a town, see who is missing a site, and contact them.</span></div></div>
+<main>
+<section><form id="f">
+<div class="composer"><input id="q" placeholder="Hotels in Enugu" aria-label="What and where"><button class="p" id="go">Search</button></div>
+<details><summary>Refine search</summary>
+<div class="g"><input id="cat" placeholder="Category"><input id="city" placeholder="City or LGA"><input id="reg" placeholder="State or region"><input id="cty" placeholder="Country" value="Nigeria">
+<input id="area" placeholder="Neighborhood (optional)"><input id="lim" type="number" min="1" max="100" value="20" aria-label="Maximum results"></div>
+<label class="mu" style="display:block;margin-top:10px"><input type="checkbox" id="hs" checked> Hide businesses I have already seen in earlier searches</label></details></form>
+<div id="msg" class="mu" style="margin-top:8px"></div></section>
+<section id="job" hidden><div class="jt"><b class="nm" id="jt"></b><span class="mu" id="jp"></span></div><div class="stp" id="stp"></div>
+<div id="je" class="bad mu"></div><button id="retry" hidden>Retry search</button></section>
+<section><div class="mu" style="margin-bottom:8px">Previous searches</div><div id="hist" class="r"></div></section>
+<section id="res" hidden>
+<div class="r" id="chips"></div>
+<div class="r" style="margin-top:10px"><label class="r mu"><input type="checkbox" data-f="hasPhone"> Phone</label><label class="r mu"><input type="checkbox" data-f="hasEmail"> Email</label>
+<label class="r mu"><input type="checkbox" data-f="hasAddress"> Address</label><label class="r mu"><input type="checkbox" data-f="hasSocial"> Social</label>
+<input id="sq" placeholder="Search within results"><select id="sort" aria-label="Sort by"><option value="name">Sort: name</option><option value="location">Sort: location</option><option value="completeness">Sort: completeness</option><option value="confidence">Sort: confidence</option></select></div>
+<div class="r" style="margin-top:12px;justify-content:space-between"><div><span class="big" id="cnt"></span> <span class="mu" id="sel"></span></div>
+<div class="r"><button id="all">Select page</button><button id="exs">Export selected</button><button id="exa">Export all</button></div></div></section>
+<div id="cards" class="cards"></div>
+<div class="r" id="pg" style="justify-content:center;margin:16px"></div>
+</main>
+<dialog id="dlg"></dialog>
+<script>
+const $=s=>document.querySelector(s);
+const h=(t,a={},...c)=>{const e=document.createElement(t);for(const[k,v]of Object.entries(a)){if(k==='class')e.className=v;else if(k.startsWith('on'))e.addEventListener(k.slice(2),v);else if(v!=null&&v!==false)e.setAttribute(k,v===true?'':v)}c.flat().forEach(x=>e.append(x==null||x===false?'':x));return e};
+const safe=u=>{try{const x=new URL(u);return/^https?:$/.test(x.protocol)?x.href:null}catch{return null}};
+const ST={website_found:['Website found','s-ok'],no_website_found:['No website found','s-gap'],uncertain:['Uncertain','s-wn'],verification_failed:['Verification failed','s-bad'],unverified:['Not yet verified','s-mu']};
+const ACTIVE=['queued','discovering','enriching','verifying'],LV={low:1,medium:2,high:3};
+let KEY=localStorage.getItem('gs_key')||'',sid=null,page=1,show=new Set(Object.keys(ST)),sel=new Set(),timer=null,rows=[];
+async function api(p,o={}){const r=await fetch('/api'+p,{...o,headers:{'content-type':'application/json','x-access-key':KEY,...(o.headers||{})}});
+ if(r.status===401){const k=prompt('Access key');if(k){KEY=k;localStorage.setItem('gs_key',k);return api(p,o)}throw new Error('Access key required')}return r}
+const say=(t,bad)=>{$('#msg').textContent=t||'';$('#msg').className='mu'+(bad?' bad':'')};
+function params(extra={}){const p=new URLSearchParams({sort:$('#sort').value,...extra});
+ if(show.size<5)p.set('status',[...show].join(','));if($('#sq').value)p.set('q',$('#sq').value);
+ document.querySelectorAll('[data-f]:checked').forEach(c=>p.set(c.dataset.f,'1'));return p}
+$('#f').onsubmit=async e=>{e.preventDefault();say('Starting your search…');$('#go').disabled=true;
+ try{const r=await api('/searches',{method:'POST',body:JSON.stringify({query:$('#q').value,category:$('#cat').value,city:$('#city').value,region:$('#reg').value,country:$('#cty').value,area:$('#area').value,limit:$('#lim').value,hideSeen:$('#hs').checked})});
+ const j=await r.json();if(!r.ok)return say(j.error,1);say('');open(j.id)}catch(x){say(x.message,1)}finally{$('#go').disabled=false}};
+async function hist(){try{const j=await(await api('/searches')).json();$('#hist').replaceChildren(...j.items.map(s=>h('button',{class:'chip'+(s.id===sid?' on':''),onclick:()=>open(s.id)},`${s.category} in ${s.city} (${s.discovered})`)));if(!j.items.length)$('#hist').replaceChildren(h('span',{class:'mu'},'Your searches will appear here.'))}catch{}}
+function open(id){sid=id;page=1;sel.clear();clearInterval(timer);poll();timer=setInterval(poll,4000)}
+function stepper(s){const i={queued:0,discovering:1,enriching:1,verifying:2}[s.status]??3,end=i===3,L=['Queued','Finding businesses','Checking websites',end?{completed:'Completed',partial:'Partially completed',failed:'Failed'}[s.status]:'Done'];
+ return L.map((l,k)=>h('div',{class:'st'+(k<i?' done':'')+(k===i&&!end?' now':'')+(end&&k===3?(s.status==='failed'?' fail':s.status==='partial'?' warn':' done'):'')},l))}
+async function poll(){const s=await(await api('/searches/'+sid)).json();$('#job').hidden=false;$('#jt').textContent=`${s.category} in ${s.city}`;
+ $('#jp').textContent=`${s.discovered} new, ${s.verified} verified`+(s.skipped_seen?`, ${s.skipped_seen} already seen and hidden`:'')+(s.resolved_location?`. Searched: ${s.resolved_location}`:'');
+ $('#stp').replaceChildren(...stepper(s));$('#je').textContent=s.errors.slice(-3).map(e=>`${e.step}/${e.source}: ${e.message}`).join(' | ');$('#retry').hidden=!['failed','partial'].includes(s.status);
+ $('#retry').onclick=async()=>{await api(`/searches/${sid}/retry`,{method:'POST'});poll()};
+ if(!ACTIVE.includes(s.status))clearInterval(timer);load();hist()}
+async function load(){const j=await(await api(`/searches/${sid}/businesses?`+params({page}))).json();rows=j.items;$('#res').hidden=false;
+ $('#cnt').textContent=`${j.total} ${j.total==1?'business':'businesses'}`;$('#sel').textContent=sel.size?`${sel.size} selected`:'';
+ $('#chips').replaceChildren(...Object.entries(ST).map(([k,[l]])=>h('button',{class:'chip'+(show.has(k)?' on':''),onclick:()=>{show.has(k)?show.delete(k):show.add(k);page=1;load()}},(show.has(k)?'✓ ':'')+l)));
+ $('#cards').replaceChildren(...j.items.map(card));if(!j.items.length)$('#cards').replaceChildren(h('div',{class:'empty'},'No businesses match these filters. Clear a filter or run another search.'));
+ const n=Math.ceil(j.total/j.pageSize);$('#pg').replaceChildren(...(n>1?[h('button',{disabled:page<=1,onclick:()=>{page--;load()}},'Previous'),h('span',{class:'mu'},`Page ${page} of ${n}`),h('button',{disabled:page>=n,onclick:()=>{page++;load()}},'Next')]:[]))}
+const loc=b=>[b.address,b.city,b.region].filter(Boolean).join(', ');
+const mono=n=>{const w=(n||'?').split(/\s+/).filter(Boolean);return((w[0]||'?')[0]+((w[1]||'')[0]||'')).toUpperCase()},hue=n=>[...n].reduce((a,c)=>a+c.charCodeAt(0),0)%360;
+function chipS(b){const[l,c]=ST[b.website_status]||ST.unverified,lv=LV[b.website_confidence]||0;
+ return h('span',{class:'cs'},l,b.website_status!=='unverified'&&lv?h('span',{class:'dots',title:b.website_confidence+' confidence','aria-label':b.website_confidence+' confidence'},[1,2,3].map(k=>h('i',{class:k<=lv?'f':''}))):'')}
+function card(b){const im=safe(b.image_url),m=h('div',{class:'mono',style:`background:hsl(${hue(b.name)} 42% 36%)`},mono(b.name));
+ if(im){const i=h('img',{src:im,alt:'',loading:'lazy',referrerpolicy:'no-referrer'});i.onerror=()=>i.remove();m.replaceChildren(i)}
+ const links=[['Facebook',b.facebook_url],['Instagram',b.instagram_url],['LinkedIn',b.linkedin_url],['Source listing',b.listing_url],['Official website',b.official_url]].map(([l,u])=>safe(u)&&h('a',{href:safe(u),target:'_blank',rel:'noopener noreferrer'},l)).filter(Boolean);
+ const tel=b.phone&&/^\+?\d{7,}$/.test(b.phone),wa=b.whatsapp&&b.whatsapp.replace(/\D/g,''),cls=(ST[b.website_status]||ST.unverified)[1];
+ return h('div',{class:'card '+cls},
+  h('div',{class:'head'},h('label',{},h('input',{type:'checkbox','aria-label':'Select '+b.name,checked:sel.has(b.id),onchange:e=>{e.target.checked?sel.add(b.id):sel.delete(b.id);$('#sel').textContent=sel.size?`${sel.size} selected`:''}})),m,h('div',{class:'nm'},b.name)),
+  chipS(b),h('div',{class:'meta'},b.category&&h('span',{},b.category),loc(b)&&h('span',{class:'mu'},loc(b))),b.description&&h('div',{class:'mu'},b.description),
+  h('div',{class:'ct'},b.phone&&h('span',{},b.phone),b.email&&h('span',{},b.email),!b.phone&&!b.email&&h('span',{class:'mu'},'No public contact details')),
+  links.length?h('div',{class:'lk'},links):'',
+  h('div',{class:'act'},h('button',{onclick:()=>detail(b.id)},'Details'),tel&&h('a',{class:'b',href:'tel:'+b.phone},'Call'),wa&&h('a',{class:'b',href:'https://wa.me/'+wa,target:'_blank',rel:'noopener noreferrer'},'WhatsApp'),
+   h('button',{onclick:e=>{navigator.clipboard.writeText([b.name,loc(b),b.phone,b.email,b.official_url].filter(Boolean).join('\n'));e.target.textContent='Copied';setTimeout(()=>e.target.textContent='Copy',1500)}},'Copy')))}
+async function detail(id){const b=await(await api('/businesses/'+id)).json();const v=b.verifications[0],ev=v&&v.evidence,d=h('dl');
+ const add=(k,x)=>x&&d.append(h('dt',{},k),h('dd',{},x));
+ add('Website status',ST[b.website_status][0]+(b.website_confidence?` (${b.website_confidence} confidence)`:''));
+ if(ev){add('Why',ev.reasons.join('; '));add('Checks run',ev.checksRun.map(c=>`${c.type}: ${c.ok?'ok':'failed '+(c.error||'')}`).join('\n'));add('Social links found',ev.socialLinks.join('\n'));add('Directory links found',ev.directoryLinks.join('\n'));add('Unconfirmed candidate',ev.candidateUrl);add('Last verified',v.verified_at)}
+ else add('Verification','Not verified yet');
+ ['phone','email','address','city','region','country','listing_website','image_source'].forEach(k=>add(k.replace('_',' '),b[k]));
+ add('Sources',b.sources.map(s=>`${s.source} (${s.fetched_at.slice(0,10)})`).join('\n'));
+ add('Missing',['phone','email','address','description','image_url','facebook_url','instagram_url','linkedin_url'].filter(k=>!b[k]).join(', '));
+ add('Note','Website status is inferred from search evidence, not proof. The listing website field is only a hint.');
+ const dlg=$('#dlg');dlg.replaceChildren(h('b',{class:'nm'},b.name),d,h('div',{class:'r',style:'margin-top:14px'},
+  h('button',{onclick:async e=>{if(!confirm('Re-verify uses SerpApi credits. Continue?'))return;e.target.disabled=true;await api(`/businesses/${id}/reverify`,{method:'POST'});dlg.close();load()}},'Re-verify'),h('button',{class:'p',onclick:()=>dlg.close()},'Close')));dlg.showModal()}
+async function exp(ids){const p=params();p.delete('page');if(ids)p.set('ids',[...ids].join(','));
+ const r=await api(`/searches/${sid}/export.csv?`+p);const u=URL.createObjectURL(await r.blob());h('a',{href:u,download:'gapscout.csv'}).click();setTimeout(()=>URL.revokeObjectURL(u),1e4)}
+$('#exa').onclick=()=>exp();$('#exs').onclick=()=>sel.size?exp(sel):say('Select businesses first');
+$('#all').onclick=()=>{rows.forEach(b=>sel.add(b.id));load()};
+$('#sort').onchange=()=>{page=1;load()};let dt;$('#sq').oninput=()=>{clearTimeout(dt);dt=setTimeout(()=>{page=1;load()},300)};
+document.querySelectorAll('[data-f]').forEach(c=>c.onchange=()=>{page=1;load()});
+hist();
+</script></body></html>
